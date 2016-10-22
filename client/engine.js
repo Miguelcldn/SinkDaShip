@@ -89,3 +89,112 @@ function CellLabel(x, y, h, text, stage) {
     
     stage.addChild(shape);
 }
+
+
+/*
+    IN are functions you call to the engine,
+    receiveAttack(position: string): boolean //Function to call when user is attacked, where position is a table position such as "F3". Returns `true` if attack hit and `false` otherwise.
+ */
+window.receiveAttack = function(position){
+    //@TODO remove / return to test only
+    return Math.random() >= 0.5;
+
+    $.ajax({
+        url: "@TODO endpoint for attack",
+        method: "POST",
+        data: {pos:position},
+        beforeSend: function( xhr ) {
+            //something
+        }
+    }).done(function( data ) {
+        return data;
+    });
+}
+/*
+ yourTurn(): void //Function to call when it's the players turn, to enable user interaction
+ */
+window.yourTurn = function(){
+    //@TODO remove / return to test only
+    return Math.random() >= 0.5;
+
+    $.ajax({
+        url: "@TODO endpoint for checking turn",
+        method: "POST",
+        data: {pos:position},
+        beforeSend: function( xhr ) {
+            //something
+        }
+    }).done(function( data ) {
+        return data;
+    });
+}
+
+/*
+ `endGame(didWin: boolean)`: void //Function to call when game is over, and `didWin` tells if the current player won
+ */
+window.endGame = function(didWin){
+    //@TODO remove / return to test only
+    return Math.random() >= 0.5;
+
+    $.ajax({
+        url: "@TODO endpoint for checking which use won",
+        method: "POST",
+        data: {pos:position},
+        beforeSend: function( xhr ) {
+            //something
+        }
+    }).done(function( data ) {
+        return data;
+    });
+}
+
+/*
+    OUT are functions I will call and you must write its code
+ `attack(position: string): void` //Function that will be called when user attacks a position
+
+ */
+window.attack = function(position){
+
+}
+
+/*
+ `turnEnded(): void` //Function that will be called when the user ends its turn and will wait for enemy's turn to end
+ */
+window.turnEnded = function(){
+
+}
+
+/*
+    `lookForMatch(board: BoardData): void` //Function that will be called when the user arranged his board
+ */
+window.lookForMatch = function(board){
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
