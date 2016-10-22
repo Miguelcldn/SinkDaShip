@@ -3,6 +3,8 @@ package com.teamNode.controllers;
 import javax.inject.Inject;
 
 import com.teamNode.domain.Match;
+import com.teamNode.domain.Player;
+import com.teamNode.exceptions.FullGameException;
 
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Path;
@@ -25,9 +27,23 @@ public class MatchController {
 	
 	public void test () {
 		Match match = new Match();
-		match.setHashId("121321321");
-		match.setPlayerTurn(1);
+
+		
+		try {
+
+			Player playerOne = new Player();
+			match.addNewPlayer(playerOne);
+			Player playerTwo = new Player();
+			match.addNewPlayer(playerTwo);
+			
+		} catch (FullGameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		result.use(Results.json()).from(match).serialize();
+		
 	}
 	
 }
+
