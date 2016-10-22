@@ -6,9 +6,10 @@ import java.util.Calendar;
 import javax.xml.bind.DatatypeConverter;
 
 import com.teamNode.exceptions.MatchException;
+import com.teamNode.interfaces.AbstractDomain;
 
 @SuppressWarnings("restriction")
-public class Match extends DefaultDomain{
+public class Match extends AbstractDomain {
 
 	private static final long serialVersionUID = 4244956101691004024L;
 
@@ -85,5 +86,10 @@ public class Match extends DefaultDomain{
 				throw new MatchException("Maximum number of players exceeded.");
 			}
 		}
+	}
+
+	public AttackResponse receiveAttack(BoardCell cellHitted) {
+		
+		return null;
 	}
 }

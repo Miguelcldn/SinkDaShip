@@ -1,11 +1,11 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.teamNode.enumerators.ShipType;
+import com.teamNode.interfaces.AbstractDomain;
 
-public class Ship implements Serializable {
+public class Ship extends AbstractDomain {
 	
 	private static final long serialVersionUID = 2503484956407160270L;
 

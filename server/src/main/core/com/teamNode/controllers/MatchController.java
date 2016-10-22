@@ -2,6 +2,8 @@ package com.teamNode.controllers;
 
 import javax.inject.Inject;
 
+import com.teamNode.domain.AttackResponse;
+import com.teamNode.domain.BoardCell;
 import com.teamNode.domain.Match;
 import com.teamNode.exceptions.MatchException;
 
@@ -26,16 +28,28 @@ public class MatchController extends DefaultController<Match> {
 	
 	@Path("/all")
 	public void getActiveMatches () {
-		serializeToJsonOutput(gamePlayController.getActiveMatches());
+		serializeToJsonOutput(successResponseList(gamePlayController.getActiveMatches()));
 	}
 	
 	@Path("/player-turn/{matchIdentificator}")
-	public void getPlayerTurn (String matchIdentificator) {
+	public void isPlayerTurn (String matchIdentificator) {
 		try {
 			Match match = gamePlayController.getMatch(matchIdentificator);
-			result.use(Results.json()).from(match.getPlayerTurn()).serialize();
+			serializeToJsonOutput(successResponse(String.valueOf(match.getPlayerTurn())));
 		} catch (MatchException e) {
-			result.use(Results.json()).from(e.getMessage()).serialize();
+			serializeToJsonOutput(failResponse(e.getMessage()));
+		}
+	}
+	
+	@Path("/attack/{matchIdentificator}")
+	public void addNewAttack (String matchIdentificator, BoardCell cellHitted){
+		try {
+			Match match = gamePlayController.getMatch(matchIdentificator);
+			AttackResponse attackResponse = match.receiveAttack(cellHitted);
+			result.use(Results.json()).from(attackResponse).recursive().serialize();
+			serializeToJsonOutput(successResponse(attackResponse));
+		} catch (MatchException e) {
+			serializeToJsonOutput(failResponse(e.getMessage()));
 		}
 	}
 	

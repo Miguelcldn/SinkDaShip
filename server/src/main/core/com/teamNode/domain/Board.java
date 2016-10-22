@@ -1,10 +1,11 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Board implements Serializable {
+import com.teamNode.interfaces.AbstractDomain;
+
+public class Board extends AbstractDomain {
 	
 	private static final long serialVersionUID = 6744923310810956238L;
 

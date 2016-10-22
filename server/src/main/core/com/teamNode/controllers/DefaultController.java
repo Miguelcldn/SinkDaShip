@@ -2,24 +2,36 @@ package com.teamNode.controllers;
 
 import java.util.List;
 
-import com.teamNode.domain.DefaultDomain;
-import com.teamNode.domain.Match;
+import com.teamNode.domain.GeneralResponse;
+import com.teamNode.interfaces.AbstractDomain;
 
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
 
-public abstract class DefaultController<T extends DefaultDomain> {
+public abstract class DefaultController<T extends AbstractDomain> {
 
 	protected Result result;
 	
 	protected GamePlayController gamePlayController;
 	
-	protected void serializeToJsonOutput(T simpleObject) {
-		result.use(Results.json()).from(simpleObject).recursive().serialize();
+	protected void serializeToJsonOutput(GeneralResponse response) {
+		result.use(Results.json()).from(response).recursive().serialize();
 	}
 	
-	protected void serializeToJsonOutput(List<Match> listOfObjects) {
-		result.use(Results.json()).from(listOfObjects).recursive().serialize();
+	protected GeneralResponse failResponse (String message) {
+		return new GeneralResponse(false, message);
+	}
+	
+	protected GeneralResponse successResponseObject (T obj) {
+		return new GeneralResponse(true, obj);
+	}
+	
+	protected GeneralResponse successResponseList (List<T> obj) {
+		return new GeneralResponse(true, obj);
+	}
+	
+	protected GeneralResponse successResponse (Object sucessResponse) {
+		return new GeneralResponse(true, sucessResponse);
 	}
 	
 }

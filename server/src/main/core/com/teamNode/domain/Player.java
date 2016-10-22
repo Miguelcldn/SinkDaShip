@@ -1,12 +1,16 @@
 package com.teamNode.domain;
 
-public class Player extends DefaultDomain {
+import com.teamNode.interfaces.AbstractDomain;
+
+public class Player extends AbstractDomain {
 
 	private static final long serialVersionUID = 863403835133645741L;
 
 	private String name;
 	
 	private Board board;
+	
+	private AttackResponse lastAttackResponse;
 
 	public Player() {
 	}
@@ -26,6 +30,14 @@ public class Player extends DefaultDomain {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+
+	public AttackResponse getLastAttackResponse() {
+		return lastAttackResponse;
+	}
+
+	public void setLastAttackResponse(AttackResponse lastAttackResponse) {
+		this.lastAttackResponse = lastAttackResponse;
 	}
 	
 }

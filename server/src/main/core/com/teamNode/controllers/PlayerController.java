@@ -29,9 +29,9 @@ public class PlayerController extends DefaultController<Player>{
 	@Path("/add-new")
 	@Consumes(value="application/json", options=WithoutRoot.class)
 	public void addNewPlayer (Player player){
-		//validate all structure of the player then
+		//TODO validate all structure of the player then
 		gamePlayController.addNewPlayer(player);
-		serializeToJsonOutput(player);
+		serializeToJsonOutput(successResponseObject(player));
 	}
 	
 }

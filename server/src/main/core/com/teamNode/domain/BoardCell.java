@@ -1,8 +1,8 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
+import com.teamNode.interfaces.AbstractDomain;
 
-public class BoardCell implements Serializable{
+public class BoardCell extends AbstractDomain {
 
 	private static final long serialVersionUID = 7680342118470460056L;
 	
