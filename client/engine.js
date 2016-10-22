@@ -95,6 +95,11 @@ function CellLabel(x, y, h, text, stage) {
     IN are functions you call to the engine,
     receiveAttack(position: string): boolean //Function to call when user is attacked, where position is a table position such as "F3". Returns `true` if attack hit and `false` otherwise.
  */
+/*
+    request the server with the clicked position and return hit or no hit
+    @position: string
+    @return: boolean
+ */
 window.receiveAttack = function(position){
     //@TODO remove / return to test only
     return Math.random() >= 0.5;
@@ -107,9 +112,11 @@ window.receiveAttack = function(position){
             //something
         }
     }).done(function( data ) {
+        //END TURN !important
         return data;
     });
 }
+
 /*
  yourTurn(): void //Function to call when it's the players turn, to enable user interaction
  */
@@ -139,7 +146,7 @@ window.endGame = function(didWin){
     $.ajax({
         url: "@TODO endpoint for checking which use won",
         method: "POST",
-        data: {pos:position},
+        data: {},
         beforeSend: function( xhr ) {
             //something
         }
@@ -154,7 +161,19 @@ window.endGame = function(didWin){
 
  */
 window.attack = function(position){
+    //@TODO remove / return to test only
+    return Math.random() >= 0.5;
 
+    $.ajax({
+        url: "@TODO endpoint for checking which use won",
+        method: "POST",
+        data: {},
+        beforeSend: function( xhr ) {
+            //something
+        }
+    }).done(function( data ) {
+        return data;
+    });
 }
 
 /*
