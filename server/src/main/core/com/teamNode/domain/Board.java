@@ -1,6 +1,7 @@
 package com.teamNode.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Board implements Serializable {
@@ -10,15 +11,21 @@ public class Board implements Serializable {
 	private List<Ship> ships;
 	
 	private List<BoardCell> hittedCells;
+	
+	public Board() {
+		this.ships = new ArrayList<Ship>();
+		this.hittedCells = new ArrayList<BoardCell>();
+	}
 
 	public List<Ship> getShips() {
 		return ships;
 	}
-
-	public void setShips(List<Ship> ships) {
-		this.ships = ships;
+	
+	public void addShip (Ship ship){
+		//try to validate if its possible to add then,...
+		ships.add(ship);
 	}
-
+		
 	public List<BoardCell> getHittedCells() {
 		return hittedCells;
 	}

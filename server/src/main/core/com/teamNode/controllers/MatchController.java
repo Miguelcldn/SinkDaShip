@@ -3,8 +3,7 @@ package com.teamNode.controllers;
 import javax.inject.Inject;
 
 import com.teamNode.domain.Match;
-import com.teamNode.domain.Player;
-import com.teamNode.exceptions.FullGameException;
+import com.teamNode.exceptions.MatchException;
 
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Path;
@@ -13,36 +12,31 @@ import br.com.caelum.vraptor.view.Results;
 
 @Controller
 @Path("/match")
-public class MatchController {
-	
-	private Result result;
+public class MatchController extends DefaultController<Match> {
 	
 	public MatchController() {
+		this(null, null);
 	}
 	
 	@Inject
-	public MatchController(Result result) {
+	public MatchController(Result result, GamePlayController gamePlayController) {
 		this.result = result;
+		this.gamePlayController = gamePlayController;
 	}
 	
-	public void test () {
-		Match match = new Match();
-
-		
+	@Path("/all")
+	public void getActiveMatches () {
+		serializeToJsonOutput(gamePlayController.getActiveMatches());
+	}
+	
+	@Path("/player-turn/{matchIdentificator}")
+	public void getPlayerTurn (String matchIdentificator) {
 		try {
-
-			Player playerOne = new Player();
-			match.addNewPlayer(playerOne);
-			Player playerTwo = new Player();
-			match.addNewPlayer(playerTwo);
-			
-		} catch (FullGameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Match match = gamePlayController.getMatch(matchIdentificator);
+			result.use(Results.json()).from(match.getPlayerTurn()).serialize();
+		} catch (MatchException e) {
+			result.use(Results.json()).from(e.getMessage()).serialize();
 		}
-		
-		result.use(Results.json()).from(match).serialize();
-		
 	}
 	
 }

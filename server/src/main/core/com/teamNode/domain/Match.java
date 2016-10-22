@@ -1,17 +1,16 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.util.Calendar;
 
 import javax.xml.bind.DatatypeConverter;
 
-import com.teamNode.exceptions.FullGameException;
+import com.teamNode.exceptions.MatchException;
 
 @SuppressWarnings("restriction")
-public class Match implements Serializable{
+public class Match extends DefaultDomain{
 
-	private static final long serialVersionUID = 3139549675390776409L;
+	private static final long serialVersionUID = 4244956101691004024L;
 
 	private String hashId;
 	
@@ -22,6 +21,16 @@ public class Match implements Serializable{
 	private int playerTurn;
 	
 	public Match() {
+		this(null,null);
+	}
+	
+	public Match(Player playerOne, Player playerTwo) {
+		createHashIdentificator();
+		this.playerOne = playerOne;
+		this.playerTwo = playerTwo;
+	}
+	
+	private void createHashIdentificator () {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			String timestampValue = String.valueOf(Calendar.getInstance().getTimeInMillis());
@@ -60,14 +69,20 @@ public class Match implements Serializable{
 		this.playerTurn = playerTurn;
 	}
 	
-	public void addNewPlayer (Player newPlayer) throws FullGameException {
+	/**
+	 * Acho que não será mais necessário....
+	 * @param newPlayer
+	 * @throws MatchException
+	 */
+	@Deprecated
+	public void addNewPlayer (Player newPlayer) throws MatchException {
 		if (playerOne == null){
 			playerOne = newPlayer;
 		} else {
 			if (playerTwo == null){
 				playerTwo = newPlayer;
 			} else {
-				throw new FullGameException("Maximum number of players reached.");
+				throw new MatchException("Maximum number of players exceeded.");
 			}
 		}
 	}

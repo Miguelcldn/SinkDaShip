@@ -1,8 +1,6 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
-
-public class Player implements Serializable {
+public class Player extends DefaultDomain {
 
 	private static final long serialVersionUID = 863403835133645741L;
 
@@ -10,12 +8,16 @@ public class Player implements Serializable {
 	
 	private Board board;
 
+	public Player() {
+	}
+	
+	public Player(String name) {
+		this.name = name;
+		this.board = new Board();
+	}
+	
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public Board getBoard() {
