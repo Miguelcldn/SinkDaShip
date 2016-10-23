@@ -12,9 +12,13 @@ public class TurnResponse extends AbstractDomain{
 	
 	private AttackResponse lastAttackSuffered;
 	
-	public TurnResponse(Match match) throws MatchException {
+	public TurnResponse(Match match){
 		this.playerOfTheTurn = match.getPlayerTurn();
-		this.lastAttackSuffered = match.getPlayerWaitingAttack().getLastAttackResponse();
+		try {
+			this.lastAttackSuffered = match.getPlayerWaitingAttack().getLastAttackResponse();
+		} catch (MatchException e) {
+			lastAttackSuffered = null;
+		}
 	}
 
 }
