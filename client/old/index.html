@@ -9,6 +9,24 @@
         <script src="service.js"></script>
     </head>
     <body onload="main()">
-        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        <section class="home box-centralized">
+            <div class="home-content box-centralized">
+                <input
+                        class="form-input"
+                        type="text"
+                        name="player"
+                        id="player"
+                        placeholder="Your player name"
+                />
+
+                <button class="btn btn-primary" onClick="window.lookForMatch()">
+                    Look for Match
+                </button>
+
+                <canvas id="gameCanvas" width="1000" height="600"></canvas>
+            </div>
+        </section>
+
+
     </body>
 </html>

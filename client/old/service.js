@@ -77,6 +77,8 @@ window.attack = function(position){
  `lookForMatch(board: BoardData): void` //Function that will be called when the user arranged his board
  */
 window.lookForMatch = function(name, boardData) {
+    var name = document.getElementById('player');
+
     window.sessionStorage.removeItem('matchId');
 
     $.ajax({

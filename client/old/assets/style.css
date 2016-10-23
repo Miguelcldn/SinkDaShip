@@ -1,0 +1,60 @@
+html, body{
+  background: #36393e;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif
+}
+
+span.active {
+  background-color: gray;
+}
+
+.btn {
+  border: none;
+  font-size: 30px;
+  outline: 0;
+  height: 70px;
+  width: 200px;
+  text-align: center;
+  line-height: 70px;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #3d88ec;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #73a7ec;
+}
+
+.form-input {
+  border: none;
+  font-size: 16px;
+  height: 30px;
+  width: 200px;
+}
+
+.box-centralized {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.hide {
+  display: none;
+}
+
+.home {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+.home-content {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  flex-direction: column;
+  justify-content: space-around;
+}
