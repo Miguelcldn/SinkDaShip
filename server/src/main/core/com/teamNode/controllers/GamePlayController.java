@@ -1,50 +1,67 @@
 package com.teamNode.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import com.teamNode.domain.Match;
 import com.teamNode.domain.Player;
 import com.teamNode.exceptions.MatchException;
+import com.teamNode.responses.InsertPlayerResponse;
 
 @ApplicationScoped
 public class GamePlayController {
 	
-	private List<Match> activeMatches;
+	private final static int PLAYER_ONE = 1;
+	private final static int PLAYER_TWO = 2;
 	
-	private Player playerWhoIsWaitingForOpponnent;
+	private Map<String, Match> activeMatches;
+	
+	private Match matchWaitingForOpponent;
 	
 	public GamePlayController() {
-		activeMatches = new ArrayList<Match>();
+		activeMatches = new HashMap<String, Match>();
 	}
 
 	public List<Match> getActiveMatches() {
-		return activeMatches;
+		ArrayList<Match> activeMatchesAsArrayList = new ArrayList<Match>();
+		for (Match activeMatch : activeMatches.values()) {
+			activeMatchesAsArrayList.add(activeMatch);
+		}
+		return activeMatchesAsArrayList;
 	}
 
 	public Match getMatch(String matchIdentificator) throws MatchException {
-		for (Match match : activeMatches) {
-			if (match.getHashId().equals(matchIdentificator)){
-				return match;
-			}
+		if (activeMatches.containsKey(matchIdentificator)){
+			return activeMatches.get(matchIdentificator);
 		}
 		throw new MatchException("The match with "+matchIdentificator+" identificator was not found on server.");
 	}
 
-	public void addNewPlayer(Player newPlayer) {
-		if (playerWhoIsWaitingForOpponnent == null){
-			playerWhoIsWaitingForOpponnent = newPlayer;
+	public InsertPlayerResponse addNewPlayer(Player newPlayer) throws MatchException {
+		if (matchWaitingForOpponent == null){
+			matchWaitingForOpponent = new Match();
+			matchWaitingForOpponent.addNewPlayer(newPlayer);
+			addMatchToMap();
+			return new InsertPlayerResponse(matchWaitingForOpponent.getHashId(), PLAYER_ONE);
 		} else {
-			insertNewMatch(newPlayer);
+			return insertPlayerInMatchWaitingForOpponents(newPlayer);
 		}
 	}
 
-	private void insertNewMatch(Player newPlayer) {
-		Match match = new Match(playerWhoIsWaitingForOpponnent, newPlayer);
-		playerWhoIsWaitingForOpponnent = null;
-		this.activeMatches.add(match);
+	private InsertPlayerResponse insertPlayerInMatchWaitingForOpponents(Player newPlayer) throws MatchException {
+		matchWaitingForOpponent.addNewPlayer(newPlayer);
+		addMatchToMap();
+		String hashId = matchWaitingForOpponent.getHashId();
+		this.matchWaitingForOpponent = null;
+		return new InsertPlayerResponse(hashId, PLAYER_TWO);
+	}
+	
+	private void addMatchToMap (){
+		this.activeMatches.put(matchWaitingForOpponent.getHashId(), matchWaitingForOpponent);
 	}
 	
 }
