@@ -1,14 +1,6 @@
 /*globals createjs, alert, Image, document, window, console*/
 
 /**
- * Mock-up function for bootstrap the engine
- * @author Miguelcldn
- */
-function main() {
-	window.engine = new Engine("gameCanvas");
-}
-
-/**
  * Main engine of the game
  * @author Miguelcldn
  * @param   {[[Type]]} canvasID The ID of the canvas to darw in
@@ -107,6 +99,14 @@ function Engine(canvasID) {
 
 		return rowL + colL;
 	};
+    
+    /**
+     * Function to call when a match is found
+     * @author Miguelcldn
+     */
+    this.matchFound = function() {
+        createjs.Sound.play("game_found");
+    };
 
 	/**
 	 * Function to call when user is looking for matchmaking, renders the enemy table
@@ -119,9 +119,10 @@ function Engine(canvasID) {
 	/**
 	 * Function to call when the user received an attack, for drawing on his table
 	 * @author Miguelcldn
-	 * @param {Array} position Position of the hit [row, col]
+	 * @param {Array}   position Position of the hit [row, col]
+	 * @param {boolean} hit      True if it was a hit
 	 */
-	this.receiveAttack = function (position) {
+	this.receiveAttack = function (position, hit) {
         var pos = self.toName(position[0], position[1]);
         
 		var cell = tables.playerTable.cells[pos[0]][pos[1]];
@@ -129,8 +130,7 @@ function Engine(canvasID) {
 
 		tables.playerTable.hitPoints.push(hitPoint);
         
-        var hit = cell.isFilled();
-
+        
 		hitPoint.confirmHit(hit);
         
         if (hit) {
@@ -529,9 +529,7 @@ function Engine(canvasID) {
 				};
 			}
 
-			if (ready) {
-				self.isReady(boardData);
-			}
+			self.isReady((ready) ? boardData : null);
 		}
 	}
 }
