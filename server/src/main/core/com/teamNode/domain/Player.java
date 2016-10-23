@@ -1,6 +1,10 @@
 package com.teamNode.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.teamNode.interfaces.AbstractDomain;
+import com.teamNode.responses.AttackResponse;
 
 public class Player extends AbstractDomain {
 
@@ -10,7 +14,7 @@ public class Player extends AbstractDomain {
 	
 	private Board board;
 	
-	private AttackResponse lastAttackResponse;
+	private List<AttackResponse> allAttacksFired;
 
 	public Player() {
 	}
@@ -18,6 +22,7 @@ public class Player extends AbstractDomain {
 	public Player(String name) {
 		this.name = name;
 		this.board = new Board();
+		this.allAttacksFired = new ArrayList<AttackResponse>();
 	}
 	
 	public String getName() {
@@ -33,11 +38,24 @@ public class Player extends AbstractDomain {
 	}
 
 	public AttackResponse getLastAttackResponse() {
-		return lastAttackResponse;
+		return allAttacksFired.get(allAttacksFired.size());
+	}
+	
+	public void addAttackResponse (AttackResponse attackResponse){
+		this.allAttacksFired.add(attackResponse);
+	}
+	
+	public boolean isAttackAvailable (BoardCell cellHitted) {
+		return !allAttacksFired.contains(cellHitted);
 	}
 
-	public void setLastAttackResponse(AttackResponse lastAttackResponse) {
-		this.lastAttackResponse = lastAttackResponse;
+	public boolean isAnyShipAlive() {
+		for (Ship ship : board.getShips()) {
+			if (ship.isNotSunk()){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

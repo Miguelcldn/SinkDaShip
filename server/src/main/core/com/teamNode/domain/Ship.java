@@ -11,8 +11,8 @@ public class Ship extends AbstractDomain {
 
 	private ShipType type;
 	
-	private List<BoardCell> positions;
-
+	private List<ShipPart> parts;
+	
 	public ShipType getType() {
 		return type;
 	}
@@ -21,12 +21,17 @@ public class Ship extends AbstractDomain {
 		this.type = type;
 	}
 
-	public List<BoardCell> getPositions() {
-		return positions;
+	public boolean isNotSunk () {
+		for (ShipPart shipPart : parts) {
+			if (shipPart.isNotFired()){
+				return true;
+			}
+		}
+		return false;
 	}
 
-	public void setPositions(List<BoardCell> positions) {
-		this.positions = positions;
+	public List<ShipPart> getParts() {
+		return this.parts;
 	}
 
 }

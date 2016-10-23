@@ -2,10 +2,11 @@ package com.teamNode.controllers;
 
 import javax.inject.Inject;
 
-import com.teamNode.domain.AttackResponse;
 import com.teamNode.domain.BoardCell;
 import com.teamNode.domain.Match;
 import com.teamNode.exceptions.MatchException;
+import com.teamNode.responses.AttackResponse;
+import com.teamNode.responses.TurnResponse;
 
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Path;
@@ -32,10 +33,10 @@ public class MatchController extends DefaultController<Match> {
 	}
 	
 	@Path("/player-turn/{matchIdentificator}")
-	public void isPlayerTurn (String matchIdentificator) {
+	public void getNumberOfPlayerOfTheTurn (String matchIdentificator) {
 		try {
 			Match match = gamePlayController.getMatch(matchIdentificator);
-			serializeToJsonOutput(successResponse(String.valueOf(match.getPlayerTurn())));
+			serializeToJsonOutput(successResponse(new TurnResponse(match)));
 		} catch (MatchException e) {
 			serializeToJsonOutput(failResponse(e.getMessage()));
 		}
@@ -46,7 +47,6 @@ public class MatchController extends DefaultController<Match> {
 		try {
 			Match match = gamePlayController.getMatch(matchIdentificator);
 			AttackResponse attackResponse = match.receiveAttack(cellHitted);
-			result.use(Results.json()).from(attackResponse).recursive().serialize();
 			serializeToJsonOutput(successResponse(attackResponse));
 		} catch (MatchException e) {
 			serializeToJsonOutput(failResponse(e.getMessage()));

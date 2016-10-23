@@ -7,6 +7,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import com.teamNode.exceptions.MatchException;
 import com.teamNode.interfaces.AbstractDomain;
+import com.teamNode.responses.AttackResponse;
 
 @SuppressWarnings("restriction")
 public class Match extends AbstractDomain {
@@ -29,6 +30,7 @@ public class Match extends AbstractDomain {
 		createHashIdentificator();
 		this.playerOne = playerOne;
 		this.playerTwo = playerTwo;
+		this.playerTurn = 1;
 	}
 	
 	private void createHashIdentificator () {
@@ -46,28 +48,28 @@ public class Match extends AbstractDomain {
 		return hashId;
 	}
 
-	public Player getPlayerOne() {
-		return playerOne;
+	public Player getPlayerOfTheTurn () throws MatchException {
+		if (playerTurn == 1){
+			return playerOne;
+		} else if (playerTurn == 2) {
+			return playerTwo;
+		} else{
+			throw new MatchException("Sorry, this player not exists in this match.");
+		}
 	}
-
-	public void setPlayerOne(Player playerOne) {
-		this.playerOne = playerOne;
+	
+	public Player getPlayerWaitingAttack () throws MatchException {
+		if (playerTurn == 1){
+			return playerTwo;
+		} else if (playerTurn == 2) {
+			return playerOne;
+		} else{
+			throw new MatchException("Sorry, this player not exists in this match.");
+		}
 	}
-
-	public Player getPlayerTwo() {
-		return playerTwo;
-	}
-
-	public void setPlayerTwo(Player playerTwo) {
-		this.playerTwo = playerTwo;
-	}
-
-	public int getPlayerTurn() {
-		return playerTurn;
-	}
-
-	public void setPlayerTurn(int playerTurn) {
-		this.playerTurn = playerTurn;
+	
+	public int getPlayerTurn () {
+		return this.playerTurn;
 	}
 	
 	/**
@@ -88,8 +90,50 @@ public class Match extends AbstractDomain {
 		}
 	}
 
-	public AttackResponse receiveAttack(BoardCell cellHitted) {
-		
-		return null;
+	public AttackResponse receiveAttack(BoardCell cellHitted) throws MatchException {
+		Player playerOfTheTurn = this.getPlayerOfTheTurn();
+		if (playerOfTheTurn.isAttackAvailable(cellHitted)){
+			AttackResponse responseForThisAttack = new AttackResponse(cellHitted);
+			responseForThisAttack.setFire(checkIfAttackShootedAShip(cellHitted));
+			responseForThisAttack.setWinner(checkIfGameIsOver()); 			
+			playerOfTheTurn.addAttackResponse(responseForThisAttack);
+			changePlayerTurn();
+			return responseForThisAttack;
+			
+		} else {
+			throw new MatchException("The cell "+cellHitted.toString()+" was attacked before.");
+		}
+	}
+	
+	private void changePlayerTurn(){
+		if (playerTurn == 1){
+			playerTurn = 2;
+		} else {
+			playerTurn = 1;
+		}
+	}
+	
+	private boolean checkIfGameIsOver() throws MatchException {
+		return this.getPlayerWaitingAttack().isAnyShipAlive();
+	}
+
+	private boolean checkIfAttackShootedAShip(BoardCell cellHitted) throws MatchException {
+		Player playerBeingAttacked = this.getPlayerWaitingAttack();
+		boolean shootFired = false;
+		for (Ship currentShipInAnalysis : playerBeingAttacked.getBoard().getShips()) {
+			if (currentShipInAnalysis.isNotSunk()){
+				for (ShipPart part : currentShipInAnalysis.getParts()) {
+					if (part.getPositionOnTable().equals(cellHitted)){
+						shootFired = true;
+						part.setFired(shootFired);
+						break;
+					} 
+				}
+				if (shootFired){
+					break;
+				}
+			}
+		}
+		return shootFired;
 	}
 }

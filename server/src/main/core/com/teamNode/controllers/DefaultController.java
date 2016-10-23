@@ -15,7 +15,7 @@ public abstract class DefaultController<T extends AbstractDomain> {
 	protected GamePlayController gamePlayController;
 	
 	protected void serializeToJsonOutput(GeneralResponse response) {
-		result.use(Results.json()).from(response).recursive().serialize();
+		result.use(Results.json()).withoutRoot().from(response).recursive().serialize();
 	}
 	
 	protected GeneralResponse failResponse (String message) {

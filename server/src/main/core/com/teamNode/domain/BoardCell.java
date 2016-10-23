@@ -1,6 +1,7 @@
 package com.teamNode.domain;
 
 import com.teamNode.interfaces.AbstractDomain;
+import com.teamNode.responses.AttackResponse;
 
 public class BoardCell extends AbstractDomain {
 
@@ -26,4 +27,24 @@ public class BoardCell extends AbstractDomain {
 		this.horizontalPosition = horizontalPosition;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AttackResponse){
+			AttackResponse attack = (AttackResponse) obj;
+			return this.horizontalPosition == attack.getCellHitted().getHorizontalPosition() && this.verticalPosition == attack.getCellHitted().getVerticalPosition();
+		} else if (obj instanceof BoardCell){
+			BoardCell otherCell = (BoardCell)obj;
+			return this.horizontalPosition == otherCell.horizontalPosition && this.verticalPosition == otherCell.verticalPosition;
+		} else {
+			return super.equals(obj);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "[horiontal:"+this.horizontalPosition+", vertical:"+this.verticalPosition+"]";
+	}
+	
+	
+	
 }
