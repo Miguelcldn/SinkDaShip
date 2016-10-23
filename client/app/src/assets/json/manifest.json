@@ -1,0 +1,13 @@
+{
+    "path": "../",
+    "manifest" : [
+        { "id": "battleship", "src" : "img/battleship.png" },
+        { "id": "carrier", "src": "img/carrier.png" },
+        { "id": "cruiser", "src": "img/cruiser.png" },
+        { "id": "destroyer", "src": "img/destroyer.png" },
+        { "id": "submarine", "src": "img/submarine.png" },
+        { "id": "game_found", "src": "sound/game_found.wav" },
+        { "id": "hit", "src" : "sound/hit.wav" },
+        { "id": "no_hit", "src" : "sound/no_hit.wav" }
+    ]
+}
