@@ -1,0 +1,6 @@
+{
+  "globalDependencies": {
+    "easeljs": "registry:dt/easeljs#0.8.0+20161006171648",
+    "tweenjs": "registry:dt/tweenjs#0.6.0+20160317120654"
+  }
+}

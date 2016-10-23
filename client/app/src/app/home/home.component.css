@@ -1,0 +1,13 @@
+.home {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+.home-content {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  flex-direction: column;
+  justify-content: space-around;
+}
