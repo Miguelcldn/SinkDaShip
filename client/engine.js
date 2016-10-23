@@ -79,6 +79,33 @@ function Engine(canvasID) {
     //**************** PUBLIC FUNCTIONS ++++++++++++++++++++++++++++++++++++++++
     
     /**
+     * Converts a position name to Array locations, eg "A1" to [0, 0]
+     * @author Miguelcldn
+     * @param   {string} position Position name
+     * @returns {Array}  [row, col]
+     */
+    this.toArrayLocations = function(position) {
+        return [
+            LETTERS.indexOf(position[0]),
+            parseInt(position[1]) - 1
+        ];
+    };
+    
+    /**
+     * Converts an array location to a position name, eg [0, 0] to "A1"
+     * @author Miguelcldn
+     * @param   {number} row The row value
+     * @param   {number} col The collumn valu
+     * @returns {string} The position name
+     */
+    this.toName = function(row, col) {
+        var rowL = LETTERS[row];
+        var colL = (colL + 1) + '';
+        
+        return rowL + colL;
+    }
+    
+    /**
      * Function to call when user is looking for matchmaking, renders the enemy table
      * @author Miguelcldn
      */
