@@ -119,10 +119,12 @@ function Engine(canvasID) {
 	/**
 	 * Function to call when the user received an attack, for drawing on his table
 	 * @author Miguelcldn
-	 * @param {string} position Position of the hit (eg. "A1")
+	 * @param {Array} position Position of the hit [row, col]
 	 */
 	this.receiveAttack = function (position) {
-		var cell = tables.playerTable.cells[position[0]][position[1]];
+        var pos = self.toName(position[0], position[1]);
+        
+		var cell = tables.playerTable.cells[pos[0]][pos[1]];
 		var hitPoint = new HitPoint(cell, CELL_WIDTH / 2, stage);
 
 		tables.playerTable.hitPoints.push(hitPoint);
@@ -152,14 +154,16 @@ function Engine(canvasID) {
 	/**
 	 * Function to call when there is confirmation if the attack was successful or not
 	 * @author Miguelcldn
-	 * @param {string}  position Position of the cell (eg. "A1")
+	 * @param {Array}   position Position of the cell [row, col]
 	 * @param {boolean} result   True if it hit, false otherwise
 	 */
 	this.confirmAttack = function (position, result) {
+        
+        var pos = self.toName(position[0], position[1]);
 		var hitpoints = tables.enemyTable.hitPoints;
 
 		for (var i = 0; i < hitpoints.length; i++) {
-			if (hitpoints[i].getCellName() === position) {
+			if (hitpoints[i].getCellName() === pos) {
 				hitpoints[i].confirmHit(result);
 
 				if (result) {
@@ -258,7 +262,7 @@ function Engine(canvasID) {
 				if (!repeated) {
 					tables.enemyTable.hitPoints.push(new HitPoint(cell, CELL_WIDTH / 2, stage));
 
-					self.attack(cell.name);
+					self.attack(self.toArrayLocations(cell.name));
 				}
 			}
 
