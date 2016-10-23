@@ -40,7 +40,7 @@ window.yourTurn = function(){
             url: "http://rnlabs.com.br:8080/sinkdaship/match/player-turn/" + matchId,
             method: "GET",
         }).done(function (data) {
-            if(data.ok && ){
+            if(data.ok){
                 console.log('checl in turn');
             } else {
                 timeOutId = setTimeout(ajaxFn, 10000);
