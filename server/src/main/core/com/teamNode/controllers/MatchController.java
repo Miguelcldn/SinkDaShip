@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.teamNode.domain.BoardCell;
 import com.teamNode.domain.Match;
 import com.teamNode.domain.Player;
 import com.teamNode.exceptions.MatchException;
+import com.teamNode.responses.AttackRequest;
 import com.teamNode.responses.AttackResponse;
 import com.teamNode.responses.TurnResponse;
 
@@ -47,19 +47,25 @@ public class MatchController extends DefaultController<Match> {
 		}
 	}
 	
-	@Path("/attack/{matchIdentificator}")
-	public void addNewAttack (String matchIdentificator, BoardCell cellHitted){
+	@Post
+	@Path("/attack")
+	@Consumes(value="application/json", options=WithoutRoot.class)
+	public void addNewAttack (AttackRequest attackRequest){
 		try {
-			Match match = gamePlayController.getMatch(matchIdentificator);
-			AttackResponse attackResponse = match.receiveAttack(cellHitted);
-			serializeToJsonOutput(successResponse(attackResponse));
+			Match match = gamePlayController.getMatch(attackRequest.getMatchId());
+			if (match.getPlayerTurn() == attackRequest.getPlayerNumber()){
+				AttackResponse attackResponse = match.receiveAttack(attackRequest.getCellHitted());
+				serializeToJsonOutput(successResponse(attackResponse));
+			} else {
+				throw new MatchException("It's not your turn! Please wait for enemy's attack!");
+			}
 		} catch (MatchException e) {
 			serializeToJsonOutput(failResponse(e.getMessage()));
 		}
 	}
 
 	@Post
-	@Path("/add-new")
+	@Path("/add-new-player")
 	@Consumes(value="application/json", options=WithoutRoot.class)
 	public void addNewPlayer (Player player){
 		List<String> validationMessages = player.validateInformations();
