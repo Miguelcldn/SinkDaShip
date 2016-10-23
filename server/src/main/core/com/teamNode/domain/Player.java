@@ -38,7 +38,10 @@ public class Player extends AbstractDomain {
 	}
 
 	public AttackResponse getLastAttackResponse() {
-		return allAttacksFired.get(allAttacksFired.size());
+		if (!allAttacksFired.isEmpty()){
+			return allAttacksFired.get(allAttacksFired.size()-1);
+		}
+		return null;
 	}
 	
 	public void addAttackResponse (AttackResponse attackResponse){
