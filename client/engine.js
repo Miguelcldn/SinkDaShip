@@ -1,11 +1,11 @@
-/*globals createjs, alert, Image, document*/
+/*globals createjs, alert, Image, document, window, console*/
 
 /**
  * Mock-up function for bootstrap the engine
  * @author Miguelcldn
  */
 function main() {
-    new Engine("gameCanvas");
+    window.engine = new Engine("gameCanvas");
 }
 
 /**
@@ -31,23 +31,99 @@ function Engine(canvasID) {
         destroyer: 2,
         submarine : 3
     };
+    var self = this;
 
     var stage = null;
     var tables = {
         playerTable : {
             posX: 0,
             posY: 0,
-            cells: {}
+            cells: {},
+            hitPoints: [],
+            labels: []
         },
         enemyTable : {
             posX: CELL_HEIGHT * 12,
             posY: 0,
-            cells: {}
+            cells: {},
+            hitPoints: [],
+            labels: []
         }
     };
     
     var currentMode;
     var shipStates = {};
+    
+    //*********** VIRTUAL FUNCTIONS ***********************************************+**
+    
+    /**
+     * Function that will be called when the user has put all his ships on board
+     * @author Miguelcldn
+     */
+    this.isReady = function() {
+        console.log("isReady() is not implemented.");
+    };
+    
+    /**
+     * Function that will be called when the user sends an attack order
+     * @author Miguelcldn
+     * @param {string} position The target position (e.g. "A1")
+     */
+    this.attack = function(position) {
+        console.log("attack() is not implemented.");
+    };
+    
+    //**************** PUBLIC FUNCTIONS ++++++++++++++++++++++++++++++++++++++++
+    
+    /**
+     * Function to call when user is looking for matchmaking, renders the enemy table
+     * @author Miguelcldn
+     */
+    this.prepareToPlay = function() {
+        setGameMode(GAME_MODES.PASSIVE);
+    };
+    
+    /**
+     * Function to call when the user received an attack, for drawing on his table
+     * @author Miguelcldn
+     * @param {string} position Position of the hit (eg. "A1")
+     */
+    this.receiveAttack = function(position) {
+        var cell = tables.playerTable.cells[position[0]][position[1]];
+        var hitPoint = new HitPoint(cell, CELL_WIDTH / 2, stage);
+        
+        tables.playerTable.hitPoints.push(hitPoint);
+        
+        hitPoint.confirmHit(cell.isFilled());
+        
+        update();
+    };
+    
+    /**
+     * Function to call to activate Active mode
+     * @author Miguelcldn
+     */
+    this.yourTurn = function() {
+        setGameMode(GAME_MODES.ACTIVE);
+    };
+    
+    /**
+     * Function to call when there is confirmation if the attack was successful or not
+     * @author Miguelcldn
+     * @param {string}  position Position of the cell (eg. "A1")
+     * @param {boolean} result   True if it hit, false otherwise
+     */
+    this.confirmAttack = function(position, result) {
+        var hitpoints = tables.enemyTable.hitPoints;
+        
+        for(var i = 0; i < hitpoints.length; i++) {
+            if(hitpoints[i].getCellName() === position) {
+                hitpoints[i].confirmHit(result);
+            }
+        }
+    };
+    
+    //*********************** PRIVATE FUNCTIONS **********************
 
     /**
      * Construction code
@@ -58,7 +134,7 @@ function Engine(canvasID) {
         stage.enableMouseOver(10);
         stage.mouseMoveOutside = true; 
         
-        setGameMode(GAME_MODES.PREPARING, stage);
+        setGameMode(GAME_MODES.PREPARING);
     }
 
     /**
@@ -74,9 +150,9 @@ function Engine(canvasID) {
             row = (i + 1) + '';
             col = LETTERS[i];
             //Numbers
-            new CellLabel((i + 1) * CELL_WIDTH + CELL_WIDTH / 2 + table.posX, 0, CELL_HEIGHT, row, stage);
+            table.labels.push(new CellLabel((i + 1) * CELL_WIDTH + CELL_WIDTH / 2 + table.posX, 0, CELL_HEIGHT, row, stage));
             //Letters
-            new CellLabel(CELL_WIDTH / 2 + table.posX, (i + 1) * CELL_HEIGHT, CELL_HEIGHT, col, stage);
+            table.labels.push(new CellLabel(CELL_WIDTH / 2 + table.posX, (i + 1) * CELL_HEIGHT, CELL_HEIGHT, col, stage));
         }
         
         for(i = 1; i < 11; i++) {
@@ -87,6 +163,7 @@ function Engine(canvasID) {
                 
                 if(!table.cells[row]) table.cells[row] = {};
                 
+                //Create the cell
                 table.cells[row][col] = new Cell(
                     i, j,
                     i * CELL_WIDTH + table.posX,
@@ -94,6 +171,8 @@ function Engine(canvasID) {
                     CELL_WIDTH,
                     CELL_HEIGHT,
                     row + col,
+                    onCellClick,
+                    table,
                     stage
                 );
             }
@@ -103,19 +182,59 @@ function Engine(canvasID) {
     }
     
     /**
-     * Returns wether the user has put all the ships in the table or not
+     * Event to be triggered when the user clicks a cell
      * @author Miguelcldn
-     * @returns {boolean} True if all the ships are in the table
+     * @param {Event} event Default click event
      */
-    function isReady() {
-        var ready = true;
-        
-        for(var ship in shipStates) {
-            if(!shipStates[ship].hasAssignedCells())
-                ready = false;
+    function onCellClick(event) {
+        if(currentMode === GAME_MODES.ACTIVE) {
+            var cell = event.cell;
+            var table = tables.enemyTable;
+            
+            if(cell.getParentTable() === table) {
+                var repeated = false;
+                
+                for(var i = 0; i < table.hitPoints.length; i++) {
+                    if(table.hitPoints[i].getCellName() === cell.name) repeated = true;
+                }
+                
+                if(!repeated) {
+                    tables.enemyTable.hitPoints.push(new HitPoint(cell, CELL_WIDTH / 2, stage));
+                    update();
+                    self.attack(cell.name);
+                }
+            }
+            
+            setGameMode(GAME_MODES.PASSIVE);
         }
+    }
+    
+    /**
+     * Erases a table
+     * @author Miguelcldn
+     * @param {object} table Table to remove
+     */
+    function removeTable(table) {
+        var i, j;
         
-        return ready;
+        for(i = 0; i < table.labels; i++) {
+            table.labels[i].erase();
+        }
+        table.labels = [];
+        
+        for(i = 0; i < table.hitPoints; i++) {
+            table.hitPoints[i].erase();
+        }
+        table.hitPoints = [];
+        
+        for(i in table.cells) {
+            for(j in table.cells[i]) {
+                table.cells[i][j].erase();
+            }
+        }
+        table.cells = {};
+        
+        update();
     }
 
     /**
@@ -132,9 +251,14 @@ function Engine(canvasID) {
      * @param {GAME_MODES}     newMode The new mode to set
      * @param {createjs.Stage} stage   The stage to update
      */
-    function setGameMode(newMode, stage) {
+    function setGameMode(newMode) {
         switch(newMode) {
             case GAME_MODES.PREPARING:
+                
+                //if there is enemy table, remove it
+                if(tables.enemyTable.cells.A) {
+                    removeTable(tables.enemyTable);
+                }
                 
                 enterPreparingMode();
                 
@@ -142,6 +266,12 @@ function Engine(canvasID) {
             case GAME_MODES.ACTIVE:
                 break;
             case GAME_MODES.PASSIVE:
+                
+                //If no enemy table is rendered, show it
+                if(!tables.enemyTable.cells.A) {
+                    drawTable(tables.enemyTable);
+                }
+                
                 break;
             case GAME_MODES.SPECTATOR:
                 break;
@@ -196,16 +326,22 @@ function Engine(canvasID) {
          * @param {object} event Event of the drop
          */
         function onDrop(event) {
-            document.removeEventListener('keydown', onKeyDown);
-            
-            if(setShipOnCell(dragging, event.stageX, event.stageY)) {
+            if(currentMode === GAME_MODES.PREPARING) {
+                
+                document.removeEventListener('keydown', onKeyDown);
+
+                if(setShipOnCell(dragging, event.stageX, event.stageY)) {
+                    if(checkShips()) {
+
+                    }
+                }
+                else {
+                    dragging.resetPosition();
+                    update();
+                }
+
+                dragging = null;
             }
-            else {
-                dragging.resetPosition();
-                update();
-            }
-            
-            dragging = null;
         }
         
         /**
@@ -214,9 +350,11 @@ function Engine(canvasID) {
          * @param {Event} event default event
          */
         function onKeyDown(event) {
-            if(dragging) {
-                dragging.togglePosition();
-                update();
+            if(currentMode === GAME_MODES.PREPARING) {
+                if(dragging) {
+                    dragging.togglePosition();
+                    update();
+                }
             }
         }
         
@@ -294,6 +432,19 @@ function Engine(canvasID) {
             ship.assignCells(cellsToFill);
             
             return true;
+        }
+        
+
+        function checkShips() {
+            
+            var ready = true; 
+            
+            for(var ship in shipStates) {
+                if(!shipStates[ship].hasAssignedCells())
+                    ready = false;
+            }
+            
+            if(ready) self.isReady();
         }
     }
     
@@ -415,7 +566,7 @@ function Ship(model, size, stage, onPressMove, onDrop, x, y) {
  * @param   {string}         name  The name of the cell (eg. "A1")
  * @param   {createjs.Stage} stage The stage to update
  */
-function Cell(tx, ty, x, y, w, h, name, stage) {
+function Cell(tx, ty, x, y, w, h, name, onClick, table, stage) {
     
     this.x = x;
     this.y = y;
@@ -425,7 +576,18 @@ function Cell(tx, ty, x, y, w, h, name, stage) {
     this.tx = tx;
     this.ty = ty;
     
+    var self = this;
+    
     var filled = false;
+    
+    /**
+     * Gets the referece of the table where this cell belongs
+     * @author Miguelcldn
+     * @returns {object} The parent table
+     */
+    this.getParentTable = function() {
+        return table;
+    };
     
     /**
      * Marks the cell as filled
@@ -454,11 +616,19 @@ function Cell(tx, ty, x, y, w, h, name, stage) {
         return filled;
     };
     
+    /**
+     * Erases the cell
+     * @author Miguelcldn
+     */
+    this.erase = function() {
+        stage.removeChild(shape);
+    };
+    
     var shape = new createjs.Shape();
     shape.graphics.beginFill("#000").beginStroke("#FFF").drawRect(x, y, w, h);
     
     //Set the events
-    shape.addEventListener('click', function(event) { alert("Clicked on " + name); });
+    shape.addEventListener('click', function(event) { event.cell = self; onClick(event); });
     shape.addEventListener('mouseover', function(event) { shape.alpha = 0.5; stage.update(); });
     shape.addEventListener('mouseout', function(event) { if(!filled) { shape.alpha = 1; } stage.update(); });
     
@@ -482,4 +652,74 @@ function CellLabel(x, y, h, text, stage) {
     shape.textAlign = "center";
     
     stage.addChild(shape);
+    
+    /**
+     * Removes the label
+     * @author Miguelcldn
+     */
+    this.erase = function() {
+        stage.removeChild(shape);
+    };
+}
+
+
+/**
+ * Represents a place where the user or enemy has attacked
+ * @author Miguelcldn
+ * @param {object}         cell  The related cell of the attack
+ * @param {number}         r     The radius of the mark
+ * @param {createjs.Stage} stage The stage to update
+ */
+function HitPoint(cell, r, stage) {
+    
+    var self = this;
+    var confirmed = false;
+    var hit = false;
+    
+    var shape = new createjs.Shape();
+    shape.graphics.beginFill("white").drawCircle(cell.x + r, cell.y + r, r);
+    stage.addChild(shape);
+    
+    /**
+     * Gets the related cell's name
+     * @author Miguelcldn
+     * @returns {string} The name of the related cell
+     */
+    this.getCellName = function() {
+        return cell.name;
+    };
+    
+    /**
+     * Changes the color of the mark depending if hit or no hit
+     * @author Miguelcldn
+     * @param {boolean} wasHit True if the attack made damage to a ship
+     */
+    this.confirmHit = function(wasHit) {
+        
+        var color = '';
+        stage.removeChild(shape);
+        
+        if(wasHit) {
+            color = 'red';
+        }
+        else {
+            color = 'blue';
+        }
+        
+        shape = new createjs.Shape();
+        shape.graphics.beginFill(color).drawCircle(cell.x + r, cell.y + r, r);
+        stage.addChild(shape);
+        hit = wasHit;
+        confirmed = true;
+    };
+    
+    /**
+     * Removes the mark from the board
+     * @author Miguelcldn
+     */
+    this.erase = function() {
+        stage.removeChild(shape);
+        shape = null;
+    };
+    
 }
