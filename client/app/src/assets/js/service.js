@@ -10,7 +10,7 @@
  */
 window.receiveAttack = function(status){
   engine.receiveAttack(status);
-}
+},
 
 /*
  yourTurn(): void //Function to call when it's the players turn, to enable user interaction
@@ -22,9 +22,8 @@ window.yourTurn = function(){
   var playerNumber = window.sessionStorage.getItem('playerNumber');
 
   $.ajax({
-    //url: "http://rnlabs.com.br:8080/sinkdaship/match/player-turn/" + matchId,
-    url: 'https://api.portalqualis.com.br:8443/api/recommendations/20422/51804',
-    method: "GET",
+    url: "http://rnlabs.com.br:8080/sinkdaship/match/player-turn/" + matchId,
+    method: "GET"
   }).done(function (data) {
     console.log(data);
     if(data.ok){
@@ -45,14 +44,14 @@ window.yourTurn = function(){
     }
   });
 
-}
+},
 
 /*
  `endGame(didWin: boolean)`: void //Function to call when game is over, and `didWin` tells if the current player won
  */
 window.endGame = function(didWin){
-  engine.endGame(win);
-}
+  engine.endGame(didWin);
+},
 
 /*
  OUT are functions I will call and you must write its code
@@ -70,7 +69,7 @@ window.attack = function(position){
   }).done(function( data ) {
     if(data.ok){
       if(data.resultObject.winner){
-        return endGame();
+        return endGame(true);
       }
 
       if(data.resultObject.fire){
@@ -83,7 +82,7 @@ window.attack = function(position){
     }
     return data;
   });
-}
+},
 
 /*
  `lookForMatch(board: BoardData): void` //Function that will be called when the user arranged his board
@@ -114,9 +113,9 @@ window.lookForMatch = function(name, boardData) {
     } else {
       console.log('Error on joining the Queue');
     }
-    return data;
+    //return data;
   });
-}
+},
 
 
 
