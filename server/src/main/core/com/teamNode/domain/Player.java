@@ -60,5 +60,18 @@ public class Player extends AbstractDomain {
 		}
 		return false;
 	}
+
+	public List<String> validateInformations() {
+		List<String> validationMessages = new ArrayList<String>();
+		if (this.name == null || this.name.trim().equals("")){
+			validationMessages.add("A player with no name can't be used!");
+		}
+		if (this.board == null){
+			validationMessages.add("You didn't set up your board!");
+		} else {
+			validationMessages.addAll(this.board.validateInformations());
+		}
+		return validationMessages;
+	}
 	
 }

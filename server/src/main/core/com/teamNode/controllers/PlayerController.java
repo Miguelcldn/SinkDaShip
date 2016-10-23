@@ -1,5 +1,7 @@
 package com.teamNode.controllers;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import com.teamNode.domain.Player;
@@ -29,9 +31,17 @@ public class PlayerController extends DefaultController<Player>{
 	@Path("/add-new")
 	@Consumes(value="application/json", options=WithoutRoot.class)
 	public void addNewPlayer (Player player){
-		//TODO validate all structure of the player then
-		gamePlayController.addNewPlayer(player);
-		serializeToJsonOutput(successResponseObject(player));
+		List<String> validationMessages = player.validateInformations();
+		if (validationMessages.isEmpty()){
+			gamePlayController.addNewPlayer(player);
+			serializeToJsonOutput(successResponseObject(player));
+		} else {
+			StringBuilder completeMessage = new StringBuilder();
+			for (String message : validationMessages) {
+				completeMessage.append(message+" ");
+			}
+			serializeToJsonOutput(failResponse(completeMessage.toString()));
+		}
 	}
 	
 }
