@@ -1,5 +1,9 @@
 /*globals createjs, alert, Image, document, window, console*/
 
+function main() {
+    var engine = new Engine("gameCanvas");
+}
+
 /**
  * Main engine of the game
  * @author Miguelcldn
