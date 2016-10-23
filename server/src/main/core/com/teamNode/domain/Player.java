@@ -1,21 +1,32 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Player implements Serializable {
+import com.teamNode.interfaces.AbstractDomain;
+import com.teamNode.responses.AttackResponse;
+
+public class Player extends AbstractDomain {
 
 	private static final long serialVersionUID = 863403835133645741L;
 
 	private String name;
 	
 	private Board board;
+	
+	private List<AttackResponse> allAttacksFired;
 
+	public Player() {
+	}
+	
+	public Player(String name) {
+		this.name = name;
+		this.board = new Board();
+		this.allAttacksFired = new ArrayList<AttackResponse>();
+	}
+	
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public Board getBoard() {
@@ -24,6 +35,30 @@ public class Player implements Serializable {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+
+	public AttackResponse getLastAttackResponse() {
+		if (!allAttacksFired.isEmpty()){
+			return allAttacksFired.get(allAttacksFired.size()-1);
+		}
+		return null;
+	}
+	
+	public void addAttackResponse (AttackResponse attackResponse){
+		this.allAttacksFired.add(attackResponse);
+	}
+	
+	public boolean isAttackAvailable (BoardCell cellHitted) {
+		return !allAttacksFired.contains(cellHitted);
+	}
+
+	public boolean isAnyShipAlive() {
+		for (Ship ship : board.getShips()) {
+			if (ship.isNotSunk()){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

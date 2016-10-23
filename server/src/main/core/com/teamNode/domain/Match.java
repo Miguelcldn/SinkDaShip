@@ -1,17 +1,18 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.util.Calendar;
 
 import javax.xml.bind.DatatypeConverter;
 
-import com.teamNode.exceptions.FullGameException;
+import com.teamNode.exceptions.MatchException;
+import com.teamNode.interfaces.AbstractDomain;
+import com.teamNode.responses.AttackResponse;
 
 @SuppressWarnings("restriction")
-public class Match implements Serializable{
+public class Match extends AbstractDomain {
 
-	private static final long serialVersionUID = 3139549675390776409L;
+	private static final long serialVersionUID = 4244956101691004024L;
 
 	private String hashId;
 	
@@ -22,6 +23,17 @@ public class Match implements Serializable{
 	private int playerTurn;
 	
 	public Match() {
+		this(null,null);
+	}
+	
+	public Match(Player playerOne, Player playerTwo) {
+		createHashIdentificator();
+		this.playerOne = playerOne;
+		this.playerTwo = playerTwo;
+		this.playerTurn = 1;
+	}
+	
+	private void createHashIdentificator () {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			String timestampValue = String.valueOf(Calendar.getInstance().getTimeInMillis());
@@ -36,39 +48,92 @@ public class Match implements Serializable{
 		return hashId;
 	}
 
-	public Player getPlayerOne() {
-		return playerOne;
-	}
-
-	public void setPlayerOne(Player playerOne) {
-		this.playerOne = playerOne;
-	}
-
-	public Player getPlayerTwo() {
-		return playerTwo;
-	}
-
-	public void setPlayerTwo(Player playerTwo) {
-		this.playerTwo = playerTwo;
-	}
-
-	public int getPlayerTurn() {
-		return playerTurn;
-	}
-
-	public void setPlayerTurn(int playerTurn) {
-		this.playerTurn = playerTurn;
+	public Player getPlayerOfTheTurn () throws MatchException {
+		if (playerTurn == 1){
+			return playerOne;
+		} else if (playerTurn == 2) {
+			return playerTwo;
+		} else{
+			throw new MatchException("Sorry, this player not exists in this match.");
+		}
 	}
 	
-	public void addNewPlayer (Player newPlayer) throws FullGameException {
+	public Player getPlayerWaitingAttack () throws MatchException {
+		if (playerTurn == 1){
+			return playerTwo;
+		} else if (playerTurn == 2) {
+			return playerOne;
+		} else{
+			throw new MatchException("Sorry, this player not exists in this match.");
+		}
+	}
+	
+	public int getPlayerTurn () {
+		return this.playerTurn;
+	}
+	
+	/**
+	 * Acho que não será mais necessário....
+	 * @param newPlayer
+	 * @throws MatchException
+	 */
+	@Deprecated
+	public void addNewPlayer (Player newPlayer) throws MatchException {
 		if (playerOne == null){
 			playerOne = newPlayer;
 		} else {
 			if (playerTwo == null){
 				playerTwo = newPlayer;
 			} else {
-				throw new FullGameException("Maximum number of players reached.");
+				throw new MatchException("Maximum number of players exceeded.");
 			}
 		}
+	}
+
+	public AttackResponse receiveAttack(BoardCell cellHitted) throws MatchException {
+		Player playerOfTheTurn = this.getPlayerOfTheTurn();
+		if (playerOfTheTurn.isAttackAvailable(cellHitted)){
+			AttackResponse responseForThisAttack = new AttackResponse(cellHitted);
+			responseForThisAttack.setFire(checkIfAttackShootedAShip(cellHitted));
+			responseForThisAttack.setWinner(checkIfGameIsOver()); 			
+			playerOfTheTurn.addAttackResponse(responseForThisAttack);
+			changePlayerTurn();
+			return responseForThisAttack;
+			
+		} else {
+			throw new MatchException("The cell "+cellHitted.toString()+" was attacked before.");
+		}
+	}
+	
+	private void changePlayerTurn(){
+		if (playerTurn == 1){
+			playerTurn = 2;
+		} else {
+			playerTurn = 1;
+		}
+	}
+	
+	private boolean checkIfGameIsOver() throws MatchException {
+		return this.getPlayerWaitingAttack().isAnyShipAlive();
+	}
+
+	private boolean checkIfAttackShootedAShip(BoardCell cellHitted) throws MatchException {
+		Player playerBeingAttacked = this.getPlayerWaitingAttack();
+		boolean shootFired = false;
+		for (Ship currentShipInAnalysis : playerBeingAttacked.getBoard().getShips()) {
+			if (currentShipInAnalysis.isNotSunk()){
+				for (ShipPart part : currentShipInAnalysis.getParts()) {
+					if (part.getPositionOnTable().equals(cellHitted)){
+						shootFired = true;
+						part.setFired(shootFired);
+						break;
+					} 
+				}
+				if (shootFired){
+					break;
+				}
+			}
+		}
+		return shootFired;
 	}
 }

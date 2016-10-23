@@ -1,18 +1,18 @@
 package com.teamNode.domain;
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.teamNode.enumerators.ShipType;
+import com.teamNode.interfaces.AbstractDomain;
 
-public class Ship implements Serializable {
+public class Ship extends AbstractDomain {
 	
 	private static final long serialVersionUID = 2503484956407160270L;
 
 	private ShipType type;
 	
-	private List<BoardCell> positions;
-
+	private List<ShipPart> parts;
+	
 	public ShipType getType() {
 		return type;
 	}
@@ -21,12 +21,17 @@ public class Ship implements Serializable {
 		this.type = type;
 	}
 
-	public List<BoardCell> getPositions() {
-		return positions;
+	public boolean isNotSunk () {
+		for (ShipPart shipPart : parts) {
+			if (shipPart.isNotFired()){
+				return true;
+			}
+		}
+		return false;
 	}
 
-	public void setPositions(List<BoardCell> positions) {
-		this.positions = positions;
+	public List<ShipPart> getParts() {
+		return this.parts;
 	}
 
 }
