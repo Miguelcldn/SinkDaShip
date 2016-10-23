@@ -53,6 +53,9 @@ function Engine(canvasID) {
     
     var currentMode;
     var shipStates = {};
+    var assets = new createjs.LoadQueue(true);
+    assets.loadManifest("assets/manifest.json");
+    assets.on("complete", main, this);
     
     //*********** VIRTUAL FUNCTIONS ***********************************************+**
     
@@ -447,8 +450,6 @@ function Engine(canvasID) {
             if(ready) self.isReady();
         }
     }
-    
-    main();
 }
 
 /**
