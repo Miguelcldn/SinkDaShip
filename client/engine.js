@@ -62,8 +62,9 @@ function Engine(canvasID) {
     /**
      * Function that will be called when the user has put all his ships on board
      * @author Miguelcldn
+     * @param {object} boardData A list of every ship, its position and location
      */
-    this.isReady = function() {
+    this.isReady = function(boardData) {
         console.log("isReady() is not implemented.");
     };
     
@@ -162,7 +163,9 @@ function Engine(canvasID) {
     function main() {
         stage = new createjs.Stage(canvasID);
         stage.enableMouseOver(10);
-        stage.mouseMoveOutside = true; 
+        stage.mouseMoveOutside = true;
+        
+        createjs.Ticker.addEventListener('tick', stage);
         
         setGameMode(GAME_MODES.PREPARING);
     }
@@ -195,7 +198,7 @@ function Engine(canvasID) {
                 
                 //Create the cell
                 table.cells[row][col] = new Cell(
-                    i, j,
+                    i - 1, j - 1,
                     i * CELL_WIDTH + table.posX,
                     j * CELL_HEIGHT + table.posY,
                     CELL_WIDTH,
@@ -272,7 +275,7 @@ function Engine(canvasID) {
      * @author Miguelcldn
      */
     function update() {
-        stage.update();
+        /* stage.update();*/
     }
 
     /**
@@ -459,6 +462,7 @@ function Engine(canvasID) {
             }
             
             //Fill the other cells
+            ship.originCell = originCell;
             ship.assignCells(cellsToFill);
             
             return true;
@@ -468,13 +472,27 @@ function Engine(canvasID) {
         function checkShips() {
             
             var ready = true; 
+            var boardData = {};
             
             for(var ship in shipStates) {
-                if(!shipStates[ship].hasAssignedCells())
+                
+                var shipState = shipStates[ship];
+                
+                if(!shipState.hasAssignedCells()) {
                     ready = false;
+                    break;
+                }
+                
+                boardData[ship] = {
+                    x: shipState.originCell.tx,
+                    y: shipState.originCell.ty,
+                    pos: shipState.pos
+                }
             }
             
-            if(ready) self.isReady();
+            if(ready) {
+                self.isReady(boardData);
+            }
         }
     }
 }
@@ -524,6 +542,7 @@ function Ship(model, size, stage, onPressMove, onDrop, x, y) {
                 assignedCells[i].empty();
             }
             assignedCells = null;
+            self.originCell = null;
         }
     };
     
@@ -572,12 +591,13 @@ function Ship(model, size, stage, onPressMove, onDrop, x, y) {
         self.shipSprite.y = y;
 
         var bounds = self.shipSprite.getBounds();
+        //self.shipSprite.hitArea = (new createjs.Shape()).graphics.beginFill("#000").drawRect(0, 0, bounds.width, bounds.height);
 
         self.shipSprite.addEventListener('pressmove', function(event) { event.ship = self; onPressMove(event); });
         self.shipSprite.addEventListener('pressup', onDrop);
 
         stage.addChild(self.shipSprite);
-        stage.update();
+        /* stage.update();*/
     };
     image.src = 'assets/img/' + model + '.png';
 }
@@ -657,8 +677,8 @@ function Cell(tx, ty, x, y, w, h, name, onClick, table, stage) {
     
     //Set the events
     shape.addEventListener('click', function(event) { event.cell = self; onClick(event); });
-    shape.addEventListener('mouseover', function(event) { shape.alpha = 0.5; stage.update(); });
-    shape.addEventListener('mouseout', function(event) { if(!filled) { shape.alpha = 1; } stage.update(); });
+    shape.addEventListener('mouseover', function(event) { shape.alpha = 0.5; /* stage.update();*/ });
+    shape.addEventListener('mouseout', function(event) { if(!filled) { shape.alpha = 1; } /* stage.update();*/ });
     
     stage.addChild(shape);
 }
