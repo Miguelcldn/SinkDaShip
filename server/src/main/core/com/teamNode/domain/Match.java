@@ -23,14 +23,7 @@ public class Match extends AbstractDomain {
 	private int playerTurn;
 	
 	public Match() {
-		this(null,null);
-	}
-	
-	public Match(Player playerOne, Player playerTwo) {
 		createHashIdentificator();
-		this.playerOne = playerOne;
-		this.playerTwo = playerTwo;
-		this.playerTurn = 1;
 	}
 	
 	private void createHashIdentificator () {
@@ -72,17 +65,12 @@ public class Match extends AbstractDomain {
 		return this.playerTurn;
 	}
 	
-	/**
-	 * Acho que não será mais necessário....
-	 * @param newPlayer
-	 * @throws MatchException
-	 */
-	@Deprecated
 	public void addNewPlayer (Player newPlayer) throws MatchException {
 		if (playerOne == null){
 			playerOne = newPlayer;
 		} else {
 			if (playerTwo == null){
+				playerTurn = 1;
 				playerTwo = newPlayer;
 			} else {
 				throw new MatchException("Maximum number of players exceeded.");
@@ -114,7 +102,7 @@ public class Match extends AbstractDomain {
 	}
 	
 	private boolean checkIfGameIsOver() throws MatchException {
-		return this.getPlayerWaitingAttack().isAnyShipAlive();
+		return this.getPlayerWaitingAttack().allShipsAreSunk();
 	}
 
 	private boolean checkIfAttackShootedAShip(BoardCell cellHitted) throws MatchException {

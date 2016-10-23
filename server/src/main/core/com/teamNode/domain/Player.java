@@ -17,6 +17,7 @@ public class Player extends AbstractDomain {
 	private List<AttackResponse> allAttacksFired;
 
 	public Player() {
+		this(null);
 	}
 	
 	public Player(String name) {
@@ -52,13 +53,13 @@ public class Player extends AbstractDomain {
 		return !allAttacksFired.contains(cellHitted);
 	}
 
-	public boolean isAnyShipAlive() {
+	public boolean allShipsAreSunk() {
 		for (Ship ship : board.getShips()) {
 			if (ship.isNotSunk()){
-				return true;
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	public List<String> validateInformations() {
