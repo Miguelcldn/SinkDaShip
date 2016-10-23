@@ -8,8 +8,8 @@
  @position: string
  @return: boolean
  */
-window.receiveAttack = function(position){
-
+window.receiveAttack = function(status){
+  engine.receiveAttack(status);
 }
 
 /*
@@ -32,6 +32,7 @@ window.yourTurn = function(){
         console.log('your turn');
         engine.yourTurn();
       } else {
+        console.log('no turn');
         setTimeout(function () {
           yourTurn();
         }, 3000);
@@ -50,8 +51,6 @@ window.yourTurn = function(){
  `endGame(didWin: boolean)`: void //Function to call when game is over, and `didWin` tells if the current player won
  */
 window.endGame = function(didWin){
-  //@TODO remove / return to test only
-  return Math.random() >= 0.5;
   engine.endGame(win);
 }
 
@@ -61,14 +60,27 @@ window.endGame = function(didWin){
 
  */
 window.attack = function(position){
-  //@TODO remove / return to test only
-  var matchId = window.sessionStorage.getItem('matchId');
+  var matchId      = window.sessionStorage.getItem('matchId');
+  var playerNumber = window.sessionStorage.setItem('playerNumber', playerNumber);
 
   $.ajax({
-    url: "http://rnlabs.com.br:8080/sinkdaship/match/attack/"+ matchId,
+    url: "http://rnlabs.com.br:8080/sinkdaship/match/attack",
     method: "POST",
-    data: {}
+    data: {matchId: matchId, playerNumber: playerNumber, cellHitted { verticalPosition:position.row, vertical:horizontalPosition.col } }
   }).done(function( data ) {
+    if(data.ok){
+      if(data.resultObject.winner){
+        return endGame();
+      }
+
+      if(data.resultObject.fire){
+        receiveAttack(true);
+      } else {
+        receiveAttack(false);
+      }
+    } else {
+
+    }
     return data;
   });
 }
@@ -80,17 +92,11 @@ window.lookForMatch = function(name, boardData) {
   window.sessionStorage.removeItem('matchId');
 
   $.ajax({
-    url: "http://rnlabs.com.br:8080/sinkdaship/match/add-new",
+    url: "http://rnlabs.com.br:8080/sinkdaship/match/add-new-player",
     method: "POST",
     data: {name: name, board: boardData}
   }).done(function( data ) {
-    /*var data = {
-     "ok": true,
-     "resultObject":    {
-     "playerNumber": 1,
-     "matchIdentificator": "999E76BDE5CB535D39CCB651745F6F429E6EFBB593F6CB977E5ED2472AF63724"
-     }
-     };*/
+
     if(data.ok){
       console.log('Joined Queue');
 
