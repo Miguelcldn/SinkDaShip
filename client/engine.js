@@ -54,6 +54,7 @@ function Engine(canvasID) {
     var currentMode;
     var shipStates = {};
     var assets = new createjs.LoadQueue(true);
+    assets.installPlugin(createjs.Sound);
     assets.loadManifest("assets/manifest.json");
     assets.on("complete", main, this);
     
@@ -127,7 +128,7 @@ function Engine(canvasID) {
         
         hitPoint.confirmHit(cell.isFilled());
         
-        update();
+        
     };
     
     /**
@@ -150,6 +151,13 @@ function Engine(canvasID) {
         for(var i = 0; i < hitpoints.length; i++) {
             if(hitpoints[i].getCellName() === position) {
                 hitpoints[i].confirmHit(result);
+                
+                if(result) {
+                    createjs.Sound.play("hit");
+                }
+                else {
+                    createjs.Sound.play("no_hit");
+                }
             }
         }
     };
@@ -211,7 +219,7 @@ function Engine(canvasID) {
             }
         }
         
-        update();
+        
     }
     
     /**
@@ -233,7 +241,7 @@ function Engine(canvasID) {
                 
                 if(!repeated) {
                     tables.enemyTable.hitPoints.push(new HitPoint(cell, CELL_WIDTH / 2, stage));
-                    update();
+                    
                     self.attack(cell.name);
                 }
             }
@@ -267,15 +275,7 @@ function Engine(canvasID) {
         }
         table.cells = {};
         
-        update();
-    }
-
-    /**
-     * Updates the screen
-     * @author Miguelcldn
-     */
-    function update() {
-        /* stage.update();*/
+        
     }
 
     /**
@@ -329,7 +329,7 @@ function Engine(canvasID) {
             shipY += 100;
         }
         
-        update();
+        
         
         /**
          * Drag handler
@@ -349,7 +349,7 @@ function Engine(canvasID) {
                     event.target.x = event.stageX + 60;
                 
                 event.target.y = event.stageY - event.target.getBounds().height;
-                update();
+                
             }
         }
 
@@ -370,7 +370,7 @@ function Engine(canvasID) {
                 }
                 else {
                     dragging.resetPosition();
-                    update();
+                    
                 }
 
                 dragging = null;
@@ -386,7 +386,7 @@ function Engine(canvasID) {
             if(currentMode === GAME_MODES.PREPARING) {
                 if(dragging) {
                     dragging.togglePosition();
-                    update();
+                    
                 }
             }
         }
@@ -597,7 +597,7 @@ function Ship(model, size, stage, onPressMove, onDrop, x, y) {
         self.shipSprite.addEventListener('pressup', onDrop);
 
         stage.addChild(self.shipSprite);
-        /* stage.update();*/
+        
     };
     image.src = 'assets/img/' + model + '.png';
 }
@@ -677,8 +677,8 @@ function Cell(tx, ty, x, y, w, h, name, onClick, table, stage) {
     
     //Set the events
     shape.addEventListener('click', function(event) { event.cell = self; onClick(event); });
-    shape.addEventListener('mouseover', function(event) { shape.alpha = 0.5; /* stage.update();*/ });
-    shape.addEventListener('mouseout', function(event) { if(!filled) { shape.alpha = 1; } /* stage.update();*/ });
+    shape.addEventListener('mouseover', function(event) { shape.alpha = 0.5;  });
+    shape.addEventListener('mouseout', function(event) { if(!filled) { shape.alpha = 1; }  });
     
     stage.addChild(shape);
 }
