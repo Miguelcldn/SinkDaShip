@@ -107,6 +107,14 @@ function Engine(canvasID) {
 
 		return rowL + colL;
 	};
+    
+    /**
+     * Function to call when a match is found
+     * @author Miguelcldn
+     */
+    this.matchFound = function() {
+        createjs.Sound.play("game_found");
+    };
 
 	/**
 	 * Function to call when user is looking for matchmaking, renders the enemy table
